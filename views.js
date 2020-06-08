@@ -1,3 +1,11 @@
+const errorJson = () => {
+    return {
+        "response_type": "ephemeral",
+        "text": "Sorry, there was a server error."
+    }
+}
+
+
 const homeJson = (user) => {
     return {
         "user_id": user,
@@ -84,6 +92,7 @@ const homeJsonBlocks = () => {
 }
 
 module.exports = {
+    errorJson,
     homeJson,
     homeJsonBlocks
 }
