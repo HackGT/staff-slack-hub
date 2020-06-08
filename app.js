@@ -2,10 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 
-const scheduleChanger = require('./scheduleChanger/scheduleChanger');
-const profileUpdate = require('./profileUpdate/profileUpdate');
+const schedule = require('./schedule/schedule');
+const profile = require('./profile/profile');
+const buzzer = require('./buzzer/buzzer');
 
-const { errorJson, homeJson, homeJsonBlocks, permissionJson } = require('./views');
+const { errorJson, homeJson, homeJsonBlocks, permissionJson, unauthorizedHomeJson } = require('./views');
 const { web, slackEvents, slackInteractions, installer } = require('./slack');
 
 const app = express();
@@ -17,13 +18,22 @@ slackEvents.on('message', (event) => {
 })
 
 slackEvents.on('app_home_opened', async (event) => {
-    const res = await web.views.publish(homeJson(event.user));
+    try {
+        const authorized = await installer.authorize({ teamId: event.view.team_id, userId: event.user });
+
+        const res = await web.views.publish(homeJson(event.user));
+    } catch (error) {
+        const res = await web.views.publish(unauthorizedHomeJson(event.user));
+    }
 })
 
 slackEvents.on('error', console.error);
 
-scheduleChanger.addInteractions(slackInteractions, web);
-profileUpdate.addInteractions(slackInteractions, web);
+app.use('/slack/actions', slackInteractions.requestListener());
+
+schedule.addInteractions(slackInteractions, web);
+profile.addInteractions(slackInteractions, web);
+buzzer.addInteractions(slackInteractions, web);
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,7 +54,7 @@ app.post('/slack/hub', async (req, res) => {
 
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
-        profileUpdate.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful!');
     },

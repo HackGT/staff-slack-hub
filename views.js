@@ -11,6 +11,11 @@ const homeJson = (user) => {
         "user_id": user,
         "view": {
             "type": "home",
+            "title": {
+                "type": "plain_text",
+                "text": "Staff Hub",
+                "emoji": true
+            },
             "blocks": homeJsonBlocks()
         }
     }
@@ -22,7 +27,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*CMS Changes: What would you like to do?*"
+                "text": "*What would you like to do?*"
             }
         },
         {
@@ -32,63 +37,60 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": ":calendar: *Create a new event*"
+                "text": "*Update Schedule*"
             },
             "accessory": {
                 "type": "button",
                 "text": {
                     "type": "plain_text",
-                    "text": "Create event",
+                    "text": "Select",
                     "emoji": true
                 },
                 "style": "primary",
-                "action_id": "open_modal",
-                "value": "create"
+                "action_id": "schedule_open_primary"
             }
-        },
-        {
-            "type": "divider"
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": ":pencil: *Edit an event*"
+                "text": "*Send Notification*"
             },
             "accessory": {
                 "type": "button",
                 "text": {
                     "type": "plain_text",
-                    "text": "Edit event",
+                    "text": "Select",
                     "emoji": true
                 },
                 "style": "primary",
-                "action_id": "open_modal",
-                "value": "edit"
-            }
-        },
-        {
-            "type": "divider"
-        },
-        {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": ":x: *Delete an event*"
-            },
-            "accessory": {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Delete event",
-                    "emoji": true
-                },
-                "style": "primary",
-                "action_id": "open_modal",
-                "value": "delete"
+                "action_id": "buzzer_open_primary"
             }
         }
     ]
+}
+
+const unauthorizedHomeJson = (user) => {
+    return {
+        "user_id": user,
+        "view": {
+            "type": "home",
+            "title": {
+                "type": "plain_text",
+                "text": "Staff Hub",
+                "emoji": true
+            },
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*Sorry, you do not have access to this page. Please contact a HackGT tech member for more information*"
+                    }
+                }
+            ]
+        }
+    }
 }
 
 const permissionJson = (url) => {
@@ -112,5 +114,6 @@ module.exports = {
     errorJson,
     homeJson,
     homeJsonBlocks,
+    unauthorizedHomeJson,
     permissionJson
 }
