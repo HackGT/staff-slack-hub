@@ -1,4 +1,6 @@
 function addInteractions(slackInteractions, web) {
 }
 
-module.exports = addInteractions;
+module.exports = {
+    addInteractions
+};

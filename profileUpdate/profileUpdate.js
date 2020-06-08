@@ -9,6 +9,9 @@ const { Stream } = require('stream');
 
 const config = require('../config.json');
 
+function addInteractions(slackInteractions, web) {
+}
+
 const pipeToFile = async (stream, file) => {
     return new Promise(resolve => {
         stream.pipe(fs.createWriteStream(file)).on("finish", resolve);
@@ -80,5 +83,6 @@ const setNameAndImage = async (web, token, webhookUrl) => {
 }
 
 module.exports = {
+    addInteractions,
     setNameAndImage
 }

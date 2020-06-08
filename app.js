@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 
 const scheduleChanger = require('./scheduleChanger/scheduleChanger');
-const { setNameAndImage } = require('./profileUpdate/profileUpdate');
+const profileUpdate = require('./profileUpdate/profileUpdate');
 
 const { errorJson, homeJson, homeJsonBlocks, permissionJson } = require('./views');
 const { web, slackEvents, slackInteractions, installer } = require('./slack');
@@ -22,7 +22,8 @@ slackEvents.on('app_home_opened', async (event) => {
 
 slackEvents.on('error', console.error);
 
-scheduleChanger(slackInteractions, web);
+scheduleChanger.addInteractions(slackInteractions, web);
+profileUpdate.addInteractions(slackInteractions, web);
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,10 +31,7 @@ app.post('/slack/hub', async (req, res) => {
     try {
         const authorized = await installer.authorize({ teamId: req.body.team_id, userId: req.body.user_id });
 
-        res.json({
-            "response_type": "ephemeral",
-            "text": "Here is a list of options."
-        })
+        res.json({ "blocks": homeJsonBlocks() })
     } catch {
         let url = await installer.generateInstallUrl({
             scopes: ['channels:read', 'groups:read'],
@@ -46,7 +44,7 @@ app.post('/slack/hub', async (req, res) => {
 
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
-        setNameAndImage(web, installation.user.token, installOptions.metadata);
+        profileUpdate.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful!');
     },
