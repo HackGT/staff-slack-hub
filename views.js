@@ -91,8 +91,26 @@ const homeJsonBlocks = () => {
     ]
 }
 
+const permissionJson = (url) => {
+    return {
+        "response_type": "ephemeral",
+        "text": `To use the Staff Hub, I need your permission first:`,
+        "attachments": [{
+            "fallback": url,
+            "actions": [
+                {
+                    type: "button",
+                    text: "Authorize via Slack",
+                    url
+                }
+            ]
+        }]
+    }
+}
+
 module.exports = {
     errorJson,
     homeJson,
-    homeJsonBlocks
+    homeJsonBlocks,
+    permissionJson
 }

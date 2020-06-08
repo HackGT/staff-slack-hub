@@ -1,79 +1,12 @@
 require('dotenv').config();
 
 const express = require('express');
-const mongoose = require('mongoose');
 
 const scheduleChanger = require('./scheduleChanger/scheduleChanger');
+const { setNameAndImage } = require('./profileUpdate/profileUpdate');
 
-const { errorJson, homeJson, homeJsonBlocks } = require('./views');
-
-const { WebClient } = require('@slack/web-api');
-const { createEventAdapter } = require('@slack/events-api');
-const { createMessageAdapter } = require('@slack/interactive-messages');
-const { InstallProvider } = require('@slack/oauth');
-
-const ORGANIZER_CHANNEL = "schedule-bot-test";
-const NAME_PREFIX = "[staff] ";
-
-class NotAuthorizedError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "NotAuthorizedError"
-    }
-}
-
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true });
-
-let db = mongoose.connection;
-db.on('error', console.error.bind(console), 'MongoDB connection error:');
-
-let Token = mongoose.model('Token', new mongoose.Schema({
-    appId: String,
-    team: {
-        id: String,
-        name: String
-    },
-    user: {
-        token: String,
-        id: String,
-        scopes: [String]
-    }
-}));
-
-const web = new WebClient(process.env.SLACK_BOT_TOKEN);
-const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
-const slackInteractions = createMessageAdapter(process.env.SLACK_SIGNING_SECRET);
-const installer = new InstallProvider({
-    clientId: process.env.SLACK_CLIENT_ID,
-    clientSecret: process.env.SLACK_CLIENT_SECRET,
-    stateSecret: 'my-state-secret',
-    installationStore: {
-        storeInstallation: async (installation) => {
-            const result = await web.users.conversations({
-                token: installation.user.token,
-                types: "private_channel"
-            })
-            if (result.channels.map((channel) => channel.name).includes(ORGANIZER_CHANNEL)) {
-                let store = new Token(installation);
-
-                store.save();
-            } else {
-                throw new NotAuthorizedError('Not staff');
-            }
-        },
-        fetchInstallation: async (installQuery) => {
-            let query = Token.findOne({
-                "team.id": installQuery.teamId,
-                "user.id": installQuery.userId
-            });
-            let result = await query.exec();
-            if (!result || result == []) {
-                return undefined;
-            }
-            return result;
-        }
-    }
-});
+const { errorJson, homeJson, homeJsonBlocks, permissionJson } = require('./views');
+const { web, slackEvents, slackInteractions, installer } = require('./slack');
 
 const app = express();
 
@@ -95,7 +28,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/slack/hub', async (req, res) => {
     try {
-        const installation = await installer.authorize({ teamId: req.body.team_id, userId: req.body.user_id });
+        const authorized = await installer.authorize({ teamId: req.body.team_id, userId: req.body.user_id });
+
         res.json({
             "response_type": "ephemeral",
             "text": "Here is a list of options."
@@ -106,35 +40,18 @@ app.post('/slack/hub', async (req, res) => {
             userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read"],
             metadata: req.body.response_url
         });
-        res.json({
-            "response_type": "ephemeral",
-            "text": `To use the Staff Hub, I need your permission first:`,
-            "attachments": [{
-                "fallback": url,
-                "actions": [
-                    {
-                        type: "button",
-                        text: "Authorize via Slack",
-                        url
-                    }
-                ]
-            }]
-        });
+        res.json(permissionJson(url));
     }
 });
 
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
-        console.log(installOptions);
-        console.log(installation);
-        // const resp = await web.users.profile.get({
-        //     token: installation.user.token
-        // })
-        // console.log(resp);
+        setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful!');
     },
     failure: async (error, installOptions, req, res) => {
+        console.log(error);
         if (error.name == "NotAuthorizedError") {
             res.send('Sorry, you are not authorized for this app.')
         } else {
@@ -144,7 +61,7 @@ const callbackOptions = {
 }
 
 app.get('/slack/oauth-redirect', async (req, res) => {
-    // Will save installation
+    // Will save installation in db
     await installer.handleCallback(req, res, callbackOptions);
 })
 
