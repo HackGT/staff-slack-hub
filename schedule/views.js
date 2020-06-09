@@ -48,7 +48,7 @@ const bodyJson = (data = undefined) => {
             "element": {
                 "type": "plain_text_input",
                 "action_id": "titleInput",
-                "initial_value": data ? data.title || '' : undefined,
+                "initial_value": data ? data.name || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
                     "text": "Enter event title"
@@ -89,7 +89,7 @@ const bodyJson = (data = undefined) => {
             "element": {
                 "type": "datepicker",
                 "action_id": "startDatePicker",
-                "initial_date": data ? dateformat(data.startDate, 'UTC:yyyy-mm-dd') : undefined,
+                "initial_date": data ? data.startDay || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
                     "text": "Select start date",
@@ -111,10 +111,10 @@ const bodyJson = (data = undefined) => {
                 "initial_option": data ? {
                     "text": {
                         "type": "plain_text",
-                        "text": dateformat(data.startDate, 'UTC:h:MM TT'),
+                        "text": data.startTime,
                         "emoji": true
                     },
-                    "value": dateformat(data.startDate, 'UTC:h:MM TT')
+                    "value": data.startTime
                 } : undefined,
                 "placeholder": {
                     "type": "plain_text",
@@ -138,7 +138,7 @@ const bodyJson = (data = undefined) => {
             "element": {
                 "type": "datepicker",
                 "action_id": "endDatePicker",
-                "initial_date": data ? dateformat(data.endDate, 'UTC:yyyy-mm-dd') : undefined,
+                "initial_date": data ? data.endDay || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
                     "text": "Select end date",
@@ -160,10 +160,10 @@ const bodyJson = (data = undefined) => {
                 "initial_option": data ? {
                     "text": {
                         "type": "plain_text",
-                        "text": dateformat(data.endDate, 'UTC:h:MM TT'),
+                        "text": data.endTime,
                         "emoji": true
                     },
-                    "value": dateformat(data.endDate, 'UTC:h:MM TT')
+                    "value": data.endTime
                 } : undefined,
                 "placeholder": {
                     "type": "plain_text",
@@ -183,23 +183,25 @@ const bodyJson = (data = undefined) => {
         },
         {
             "type": "input",
-            "block_id": "area",
+            "block_id": "location",
             "element": {
-                "type": "external_select",
-                "action_id": "areaSelect",
+                "type": "multi_external_select",
+                "action_id": "locationSelect",
                 "placeholder": {
                     "type": "plain_text",
                     "text": "Select event location",
                     "emoji": true
                 },
-                "initial_option": (data && data.area) ? {
-                    "text": {
-                        "type": "plain_text",
-                        "text": data.area.name,
-                        "emoji": true
-                    },
-                    "value": data.area.id
-                } : undefined,
+                "initial_options": (data && data.location) ? data.location.map((location) => {
+                    return {
+                        "text": {
+                            "type": "plain_text",
+                            "text": location.name,
+                            "emoji": true
+                        },
+                        "value": location.id
+                    }
+                }) : undefined,
                 "min_query_length": 0
             },
             "label": {
@@ -212,7 +214,7 @@ const bodyJson = (data = undefined) => {
             "type": "input",
             "block_id": "type",
             "element": {
-                "type": "static_select",
+                "type": "external_select",
                 "action_id": "typeSelect",
                 "placeholder": {
                     "type": "plain_text",
@@ -222,53 +224,12 @@ const bodyJson = (data = undefined) => {
                 "initial_option": (data && data.type) ? {
                     "text": {
                         "type": "plain_text",
-                        "text": data.type.capitalize(),
+                        "text": data.type.name,
                         "emoji": true
                     },
-                    "value": data.type
+                    "value": data.type.id
                 } : undefined,
-                "options": [
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Workshop",
-                            "emoji": true
-                        },
-                        "value": "workshop"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Talk",
-                            "emoji": true
-                        },
-                        "value": "talk"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Minievent",
-                            "emoji": true
-                        },
-                        "value": "minievent"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Meal",
-                            "emoji": true
-                        },
-                        "value": "meal"
-                    },
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Other",
-                            "emoji": true
-                        },
-                        "value": "other"
-                    },
-                ]
+                "min_query_length": 0
             },
             "label": {
                 "type": "plain_text",
@@ -300,12 +261,11 @@ const firstJson = (trigger_id) => {
 }
 
 const secondJson = (modal_id, selected_event, data) => {
-    console.log('here')
     return {
         "view_id": modal_id,
         "view": {
             "type": "modal",
-            "callback_id": "edit_modal_callback_id",
+            "callback_id": "schedule_submit",
             'notify_on_close': true,
             "title": {
                 "type": "plain_text",

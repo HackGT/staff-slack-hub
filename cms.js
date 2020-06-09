@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const dateformat = require('dateformat');
 
-const { eventsQuery, areasQuery, eventDataQuery, tagsQuery } = require('./queries');
+const { eventsQuery, locationsQuery, typesQuery, eventDataQuery, tagsQuery } = require('./queries');
 
 // Slack will not display options data if text or value is greater than 75 characters so it must be shortened
 String.prototype.trunc = String.prototype.trunc ||
@@ -19,7 +19,7 @@ async function makeCMSRequest(query, variables = {}) {
         "Content-Type": `application/json`,
         Accept: `application/json`
     }
-    //headers['Authorization'] = `Bearer ${process.env.CMS_TOKEN}`
+    headers['Authorization'] = `Bearer ${process.env.CMS_TOKEN}`
 
     const res = await fetch(process.env.CMS_URL, {
         method: "POST",
@@ -29,7 +29,17 @@ async function makeCMSRequest(query, variables = {}) {
             variables: variables
         })
     })
-    return res;
+
+    let data = await res.json();
+
+    if (data.errors) {
+        console.error(data.errors);
+        return null;
+    } else if (!data.data) {
+        return null;
+    }
+
+    return data;
 }
 
 async function makeRequest(message, clientSchemaJson, adminkey) {
@@ -64,53 +74,71 @@ async function makeRequest(message, clientSchemaJson, adminkey) {
 }
 
 async function getEventData(id) {
-    const res = await makeCMSRequest(eventDataQuery(id))
+    let data = await makeCMSRequest(eventDataQuery(id))
 
-    let data = await res.json();
-    data = data.data.eventbases;
-
-    if (data.length == 1) {
-        console.log(data[0]);
-        return data[0];
-    } else {
-        console.log("Error retrieving data for event id: " + id);
+    if (!data) {
+        return {};
     }
+
+    return data.data.Event;
 }
 
-async function getAreas() {
-    const res = await makeCMSRequest(areasQuery());
+async function getLocations() {
+    let data = await makeCMSRequest(locationsQuery());
 
-    console.log("Fetched areas data");
+    console.log("Fetched locations data");
 
-    let data = await res.json();
-
-    if (data.errors) {
-        console.error(data.errors);
-        return [];
-    } else if (!data.data.areas) {
+    if (!data) {
         return [];
     }
 
-    data = data.data.areas;
+    data = data.data.allLocations;
 
     let options = {
         "options": []
     };
 
-    for (area of data) {
+    for (location of data) {
         options.options.push({
             text: {
                 type: "plain_text",
-                text: area.name
+                text: location.name
             },
-            value: area.id
+            value: location.id
+        })
+    }
+    return options;
+}
+
+async function getTypes() {
+    let data = await makeCMSRequest(typesQuery());
+
+    console.log("Fetched types data");
+
+    if (!data) {
+        return [];
+    }
+
+    data = data.data.allTypes;
+
+    let options = {
+        "options": []
+    };
+
+    for (type of data) {
+        options.options.push({
+            text: {
+                type: "plain_text",
+                text: type.name
+            },
+            value: type.id
         })
     }
     return options;
 }
 
 async function getTags() {
-    const res = await makeCMSRequest(tagsQuery());
+    let res = await makeCMSRequest(tagsQuery());
 
     console.log("Fetched tags data");
 
@@ -145,31 +173,26 @@ async function getTags() {
 }
 
 async function getEvents(query) {
-    const res = await makeCMSRequest(eventsQuery());
+    let data = await makeCMSRequest(eventsQuery());
 
     console.log("Fetched event data");
 
-    let data = await res.json();
-
-    if (data.errors) {
-        console.error(data.errors);
-        return [];
-    } else if (!data.data.eventbases) {
+    if (!data) {
         return [];
     }
 
-    data = data.data.eventbases;
+    data = data.data.allEvents;
 
     // Filters events based on what the user types in the dropdown box
     data = data.filter((event) => {
-        if (!event.id || !event.title || !event.start_time) {
+        if (!event.id || !event.name || !event.startDate) {
             return false;
         }
-        return event.title.toLowerCase().replace(/\s/g, '').includes(query.toLowerCase().replace(/\s/g, ''));
+        return event.name.toLowerCase().replace(/\s/g, '').includes(query.toLowerCase().replace(/\s/g, ''));
     });
 
     for (i = 0; i < data.length; i++) {
-        data[i].date = new Date(data[i].start_time);
+        data[i].date = new Date(data[i].startDate);
     }
 
     data = data.sort((a, b) => a.date - b.date);
@@ -199,7 +222,7 @@ async function getEvents(query) {
         let object = {
             text: {
                 type: "plain_text",
-                text: (timeString + " " + event.title).trunc(60)
+                text: (timeString + " " + event.name).trunc(60)
             },
             value: event.id
         }
@@ -212,7 +235,8 @@ async function getEvents(query) {
 
 module.exports = {
     getEventData,
-    getAreas,
+    getLocations,
+    getTypes,
     getTags,
     getEvents
 }

@@ -294,26 +294,6 @@ const secondJsonBlocks = (selected_platforms) => {
                     "emoji": true
                 }
             });
-            blocks.push({
-                "type": "input",
-                "block_id": "none13",
-                "element": {
-                    "type": "external_select",
-                    "action_id": "mobile_tag",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "Select tag",
-                        "emoji": true
-                    },
-                    "min_query_length": 0
-                },
-                "label": {
-                    "type": "plain_text",
-                    "text": "Tag",
-                    "emoji": true
-                },
-                "optional": true
-            });
         }
         if (selected_platforms[p].value == "mapgt") {
             blocks.push({

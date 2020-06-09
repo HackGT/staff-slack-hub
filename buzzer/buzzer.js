@@ -1,7 +1,6 @@
 const { firstJson, secondJson, successJson, failureJson } = require('./views');
 
-const { getTags, getAreas } = require('../cms');
-
+const { getLocations } = require('../cms');
 
 function addInteractions(slackInteractions, web) {
     slackInteractions.action({ actionId: 'buzzer_open_primary' }, async (payload) => {
@@ -19,16 +18,10 @@ function addInteractions(slackInteractions, web) {
         console.log('Submitted');
     })
 
-    slackInteractions.options({ actionId: 'mobile_tag' }, (payload) => {
-        console.log('Getting tags');
-
-        return getTags().catch(console.error);
-    })
-
     slackInteractions.options({ actionId: 'mapgt_location' }, (payload) => {
         console.log('Getting areas');
 
-        return getAreas().catch(console.error);
+        return getLocations().catch(console.error);
     })
 
     slackInteractions.options({ actionId: 'slack_channels' }, (payload) => {

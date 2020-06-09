@@ -8,47 +8,53 @@ const queryMessage = () => `query send_message($message:String!, $plugins:Plugin
   }
 }`;
 
-const tagsQuery = () => `
+const locationsQuery = () => `
     query {
-        tags(start: 0) {
+        allLocations {
+            id
             name
-            slug
+            mapGTSlug
         }
     }
 `
 
-const areasQuery = () => `
+const typesQuery = () => `
     query {
-        areas(start: 0) {
+        allTypes {
             id
             name
-            mapgt_slug
         }
     }
 `
 
 const eventsQuery = () => `
     query {
-        eventbases(start: 0) {
+        allEvents {
             id
-            title
-            start_time
+            name
+            startDate
         }
     }
 `;
 
 const eventDataQuery = (id) => `
     query {
-        eventbases(where: { _id: "${id}" }) {
-            title
+        Event(where: { id: "${id}" }) {
+            id
+            name
             description
-            start_time
-            end_time
-            area {
+            startTime
+            startDay
+            endTime
+            endDay
+            location {
                 name
                 id
             }
-            type
+            type {
+                name
+                id
+            }
         }
     }
 `;
@@ -68,9 +74,9 @@ const updateEventMutation = () => `
 
 module.exports = {
     queryMessage,
-    tagsQuery,
     eventsQuery,
-    areasQuery,
+    locationsQuery,
+    typesQuery,
     eventDataQuery,
     updateEventMutation,
 }
