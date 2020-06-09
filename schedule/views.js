@@ -44,19 +44,19 @@ const bodyJson = (data = undefined) => {
     return [
         {
             "type": "input",
-            "block_id": "title",
+            "block_id": "name",
             "element": {
                 "type": "plain_text_input",
-                "action_id": "titleInput",
+                "action_id": "nameInput",
                 "initial_value": data ? data.name || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Enter event title"
+                    "text": "Enter event name"
                 }
             },
             "label": {
                 "type": "plain_text",
-                "text": "Title",
+                "text": "Name",
                 "emoji": true
             }
         },
@@ -85,10 +85,10 @@ const bodyJson = (data = undefined) => {
         },
         {
             "type": "input",
-            "block_id": "startDate",
+            "block_id": "startDay",
             "element": {
                 "type": "datepicker",
-                "action_id": "startDatePicker",
+                "action_id": "startDayPicker",
                 "initial_date": data ? data.startDay || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
@@ -134,10 +134,10 @@ const bodyJson = (data = undefined) => {
         },
         {
             "type": "input",
-            "block_id": "endDate",
+            "block_id": "endDay",
             "element": {
                 "type": "datepicker",
-                "action_id": "endDatePicker",
+                "action_id": "endDayPicker",
                 "initial_date": data ? data.endDay || '' : undefined,
                 "placeholder": {
                     "type": "plain_text",
@@ -333,7 +333,7 @@ const failureJson = (error) => {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*:( There was an error updating CMS. Please contact a member of the tech team*"
+                        "text": "*:( There was an error updating CMS. Please contact a member of the tech team.*"
                     }
                 },
                 {

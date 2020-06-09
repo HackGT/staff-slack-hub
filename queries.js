@@ -1,12 +1,14 @@
-const queryMessage = () => `query send_message($message:String!, $plugins:PluginMaster!) {
-  send_message(message: $message, plugins: $plugins) {
-    plugin
-    errors {
-      error
-      message
+const queryMessage = () => `
+    query send_message($message:String!, $plugins:PluginMaster!) {
+        send_message(message: $message, plugins: $plugins) {
+            plugin
+            errors {
+            error
+            message
+            }
+        }
     }
-  }
-}`;
+`;
 
 const locationsQuery = () => `
     query {
@@ -16,7 +18,7 @@ const locationsQuery = () => `
             mapGTSlug
         }
     }
-`
+`;
 
 const typesQuery = () => `
     query {
@@ -37,9 +39,9 @@ const eventsQuery = () => `
     }
 `;
 
-const eventDataQuery = (id) => `
-    query {
-        Event(where: { id: "${id}" }) {
+const eventDataQuery = () => `
+    query getEventData($id: ID!) {
+        Event(where: { id: $id }) {
             id
             name
             description
@@ -60,17 +62,12 @@ const eventDataQuery = (id) => `
 `;
 
 const updateEventMutation = () => `
-    mutation UpdateEvent($event: updateEventbaseInput) {
-      updateEventbase(input: $event) {
-        eventbase {
-          title
-          start_time
-          end_time
-          id
-        }
+    mutation UpdateEvent($id: ID!, $data: EventUpdateInput) {
+      updateEvent(id: $id, data: $data) {
+        name
       }
     }
-`
+`;
 
 module.exports = {
     queryMessage,

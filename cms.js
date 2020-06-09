@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const dateformat = require('dateformat');
 
-const { eventsQuery, locationsQuery, typesQuery, eventDataQuery, tagsQuery } = require('./queries');
+const { eventsQuery, locationsQuery, typesQuery, eventDataQuery, tagsQuery, updateEventMutation } = require('./queries');
 
 // Slack will not display options data if text or value is greater than 75 characters so it must be shortened
 String.prototype.trunc = String.prototype.trunc ||
@@ -30,16 +30,14 @@ async function makeCMSRequest(query, variables = {}) {
         })
     })
 
-    let data = await res.json();
+    const data = await res.json();
 
-    if (data.errors) {
+    if (res.status != 200 || data.errors) {
         console.error(data.errors);
-        return null;
-    } else if (!data.data) {
-        return null;
+        return [res.statusText, null];
     }
 
-    return data;
+    return [null, data];
 }
 
 async function makeRequest(message, clientSchemaJson, adminkey) {
@@ -74,9 +72,9 @@ async function makeRequest(message, clientSchemaJson, adminkey) {
 }
 
 async function getEventData(id) {
-    let data = await makeCMSRequest(eventDataQuery(id))
+    const [err, data] = await makeCMSRequest(eventDataQuery(), { id: id })
 
-    if (!data) {
+    if (err) {
         return {};
     }
 
@@ -84,21 +82,17 @@ async function getEventData(id) {
 }
 
 async function getLocations() {
-    let data = await makeCMSRequest(locationsQuery());
+    const [err, data] = await makeCMSRequest(locationsQuery());
 
-    console.log("Fetched locations data");
-
-    if (!data) {
+    if (err) {
         return [];
     }
-
-    data = data.data.allLocations;
 
     let options = {
         "options": []
     };
 
-    for (location of data) {
+    for (location of data.data.allLocations) {
         options.options.push({
             text: {
                 type: "plain_text",
@@ -107,25 +101,22 @@ async function getLocations() {
             value: location.id
         })
     }
+
     return options;
 }
 
 async function getTypes() {
-    let data = await makeCMSRequest(typesQuery());
+    const [err, data] = await makeCMSRequest(typesQuery());
 
-    console.log("Fetched types data");
-
-    if (!data) {
+    if (err) {
         return [];
     }
-
-    data = data.data.allTypes;
 
     let options = {
         "options": []
     };
 
-    for (type of data) {
+    for (type of data.data.allTypes) {
         options.options.push({
             text: {
                 type: "plain_text",
@@ -134,30 +125,22 @@ async function getTypes() {
             value: type.id
         })
     }
+
     return options;
 }
 
 async function getTags() {
-    let res = await makeCMSRequest(tagsQuery());
+    const [err, data] = await makeCMSRequest(tagsQuery());
 
-    console.log("Fetched tags data");
-
-    let data = await res.json();
-
-    if (data.errors) {
-        console.error(data.errors);
-        return [];
-    } else if (!data.data.tags) {
+    if (err) {
         return [];
     }
-
-    data = data.data.tags;
 
     let options = {
         "options": []
     };
 
-    for (tag of data) {
+    for (tag of data.data.tags) {
         if (!tag.slug) {
             continue
         }
@@ -169,33 +152,32 @@ async function getTags() {
             value: tag.slug
         })
     }
+
     return options;
 }
 
 async function getEvents(query) {
-    let data = await makeCMSRequest(eventsQuery());
+    const [err, data] = await makeCMSRequest(eventsQuery());
 
-    console.log("Fetched event data");
-
-    if (!data) {
+    if (err) {
         return [];
     }
 
-    data = data.data.allEvents;
+    let eventData = data.data.allEvents;
 
     // Filters events based on what the user types in the dropdown box
-    data = data.filter((event) => {
+    eventData = eventData.filter((event) => {
         if (!event.id || !event.name || !event.startDate) {
             return false;
         }
         return event.name.toLowerCase().replace(/\s/g, '').includes(query.toLowerCase().replace(/\s/g, ''));
     });
 
-    for (i = 0; i < data.length; i++) {
-        data[i].date = new Date(data[i].startDate);
+    for (i = 0; i < eventData.length; i++) {
+        eventData[i].date = new Date(eventData[i].startDate);
     }
 
-    data = data.sort((a, b) => a.date - b.date);
+    eventData = eventData.sort((a, b) => a.date - b.date);
 
     let options = {
         "option_groups": []
@@ -203,7 +185,7 @@ async function getEvents(query) {
 
     let dates = [];
 
-    for (event of data) {
+    for (event of eventData) {
         let timeString = dateformat(event.date, 'UTC:hh:MM TT');
         let dateString = dateformat(event.date, 'UTC:ddd, mmm dd, yyyy');
 
@@ -233,10 +215,17 @@ async function getEvents(query) {
     return options;
 }
 
+async function updateEvent(queryInput) {
+    const [err, data] = await makeCMSRequest(updateEventMutation(), queryInput);
+
+    return [err, data];
+}
+
 module.exports = {
     getEventData,
     getLocations,
     getTypes,
     getTags,
-    getEvents
+    getEvents,
+    updateEvent
 }
