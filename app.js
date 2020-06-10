@@ -32,7 +32,7 @@ slackEvents.on('error', console.error);
 app.use('/slack/actions', slackInteractions.requestListener());
 
 schedule.addInteractions(slackInteractions, web);
-profile.addInteractions(slackInteractions, web);
+profile.addInteractions(slackInteractions, web, installer);
 buzzer.addInteractions(slackInteractions, web);
 
 app.use(express.urlencoded({ extended: true }));
@@ -59,7 +59,7 @@ const callbackOptions = {
         res.send('Successful!');
     },
     failure: async (error, installOptions, req, res) => {
-        console.log(error);
+        console.error(error);
         if (error.name == "NotAuthorizedError") {
             res.send('Sorry, you are not authorized for this app.')
         } else {
@@ -76,15 +76,13 @@ app.get('/slack/oauth-redirect', async (req, res) => {
 app.get('/*', (req, res) => {
     res.send("Default get");
 
-    console.log(req.url);
-    console.log('Loading get');
+    console.log('GET Request: ' + req.url);
 })
 
 app.post('/*', (req, res) => {
     res.send("Default post");
 
-    console.log(req.url);
-    console.log('Loading post');
+    console.log('POST Request: ' + req.url);
 })
 
 app.listen(process.env.PORT, () => {

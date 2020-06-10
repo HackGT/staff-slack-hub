@@ -9,7 +9,19 @@ const { Stream } = require('stream');
 
 const config = require('../config.json');
 
-function addInteractions(slackInteractions, web) {
+function addInteractions(slackInteractions, web, installer) {
+
+    /* ------------------------------ SLACK ACTIONS ----------------------------- */
+
+    slackInteractions.action({ actionId: 'profile_run' }, async (payload) => {
+        try {
+            const authorized = await installer.authorize({ teamId: payload.user.team_id, userId: payload.user.id });
+
+            setNameAndImage(web, authorized.userToken, payload.response_url);
+        } catch (error) {
+            console.error(error);
+        }
+    });
 }
 
 const pipeToFile = async (stream, file) => {
@@ -75,7 +87,7 @@ const setNameAndImage = async (web, token, webhookUrl) => {
             throw new Error();
         }
     } catch (error) {
-        console.log(error)
+        console.error(error)
         webhook.send({
             text: "Sorry, there was an error."
         })

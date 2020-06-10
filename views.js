@@ -37,7 +37,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*Update Schedule*"
+                "text": "*Update Schedule* - Edit CMS events"
             },
             "accessory": {
                 "type": "button",
@@ -54,7 +54,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*Send Notification*"
+                "text": "*Send Notification* - Use buzer to send announcements"
             },
             "accessory": {
                 "type": "button",
@@ -65,6 +65,23 @@ const homeJsonBlocks = () => {
                 },
                 "style": "primary",
                 "action_id": "buzzer_open_primary"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Promote User* - Add name prefix and overlay"
+            },
+            "accessory": {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Select",
+                    "emoji": true
+                },
+                "style": "primary",
+                "action_id": "profile_run"
             }
         }
     ]

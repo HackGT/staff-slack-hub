@@ -2,24 +2,24 @@ const { firstJson, secondJson, successJson, failureJson } = require('./views');
 const { getEvents, getLocations, getEventData, getTypes, updateEvent } = require('../cms');
 
 function addInteractions(slackInteractions, web) {
-    slackInteractions.action({ actionId: 'schedule_open_primary' }, async (payload) => {
-        console.log('Opening Schedule');
 
+    /* ------------------------------ SLACK ACTIONS ----------------------------- */
+
+    slackInteractions.action({ actionId: 'schedule_open_primary' }, async (payload) => {
+        console.log(payload);
         const res = await web.views.open(firstJson(payload.trigger_id));
     });
 
     slackInteractions.action({ actionId: 'schedule_event_select' }, async (payload) => {
-        console.log('Event selected; Updating modal');
-
         let selected_event = payload.actions[0].selected_option;
         let data = await getEventData(selected_event.value);
 
         const res = await web.views.update(secondJson(payload.view.id, selected_event, data));
     });
 
-    slackInteractions.viewSubmission('schedule_submit', async (payload) => {
-        console.log('Schedule submitted');
+    /* ------------------------- SLACK VIEW SUBMISSIONS ------------------------- */
 
+    slackInteractions.viewSubmission('schedule_submit', async (payload) => {
         let queryInput = parseData(payload.view.state.values);
         queryInput.id = payload.view.private_metadata;
 
@@ -31,6 +31,8 @@ function addInteractions(slackInteractions, web) {
             return successJson();
         }
     })
+
+    /* ------------------------------ SLACK OPTIONS ----------------------------- */
 
     slackInteractions.options({ actionId: 'schedule_event_select' }, (payload) => {
         return getEvents(payload.value).catch(console.error);
