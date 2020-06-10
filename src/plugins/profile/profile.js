@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const { Stream } = require('stream');
 
-const config = require('../config.json');
+const config = require('../../config.json');
 
 function addInteractions(slackInteractions, web, installer) {
 

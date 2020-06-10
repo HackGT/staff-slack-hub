@@ -2,9 +2,9 @@ require('dotenv').config();
 
 const express = require('express');
 
-const schedule = require('./schedule/schedule');
-const profile = require('./profile/profile');
-const buzzer = require('./buzzer/buzzer');
+const schedule = require('./plugins/schedule/schedule');
+const profile = require('./plugins/profile/profile');
+const buzzer = require('./plugins/buzzer/buzzer');
 
 const { errorJson, homeJson, homeJsonBlocks, permissionJson, unauthorizedHomeJson } = require('./views');
 const { web, slackEvents, slackInteractions, installer } = require('./slack');
