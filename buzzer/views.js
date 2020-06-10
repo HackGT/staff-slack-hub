@@ -95,7 +95,7 @@ const secondJson = (selected_platforms) => {
             "notify_on_close": true,
             "title": {
                 "type": "plain_text",
-                "text": "Buzzer App",
+                "text": "Send Notifications",
                 "emoji": true
             },
             "submit": {
@@ -419,7 +419,7 @@ const failureJson = (error) => {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*:( There was an error sending your notification. Please contact a member of the tech team*"
+                        "text": "*:( There was an error sending your notification. Please contact a member of the tech team.*"
                     }
                 }
             ]

@@ -1,6 +1,8 @@
 const { firstJson, secondJson, successJson, failureJson } = require('./views');
 const { getLocations } = require('../cms');
 
+const fetch = require('node-fetch');
+
 function addInteractions(slackInteractions, web) {
 
     /* ------------------------------ SLACK ACTIONS ----------------------------- */
@@ -18,7 +20,25 @@ function addInteractions(slackInteractions, web) {
     })
 
     slackInteractions.viewSubmission('buzzer_submit', async (payload) => {
-        console.log('Submitted');
+        console.log('Buzzer submitted');
+
+        let clients = [];
+        for (const block of payload.view.blocks) {
+            if (!block.block_id.includes('none')) {
+                clients.push(block.block_id);
+            }
+        }
+
+        values = payload.view.state.values;
+        // values = [...new Set(values)];
+        let clientSchema = await generateSchema(clients, values);
+        let clientSchemaJson = {}
+        clientSchema.map(client => {
+            let index = Object.keys(client)[0];
+            clientSchemaJson[index] = client[index];
+        })
+        const res = await makeBuzzerRequest(values.none1.message.value, clientSchemaJson);
+        return ret;
     })
 
     /* ------------------------------ SLACK OPTIONS ----------------------------- */
@@ -27,20 +47,88 @@ function addInteractions(slackInteractions, web) {
         return getLocations().catch(console.error);
     })
 
-    slackInteractions.options({ actionId: 'slack_channels' }, (payload) => {
-        return getConversations(payload.value, web).catch(console.error);
+    slackInteractions.options({ actionId: 'slack_channels' }, async (payload) => {
+        return await getConversations(payload.value, web).catch(console.error);
     })
+}
+
+async function generateSchema(clients, values) {
+    schema = [];
+    for (const client of clients) {
+        if (client == 'live_site') {
+            schema.push(
+                {
+                    "live_site": {
+                        "title": values.live_site.live_site_title.value
+                        // "icon": values.none4.live_site_icon.value || null
+                    }
+                }
+            )
+        }
+        else if (client == 'twitter') {
+            schema.push(
+                {
+                    "twitter": {
+                        "_": true
+                    }
+                }
+            )
+        }
+        else if (client == 'slack') {
+            selected_options = values.none10.slack_at.selected_options;
+            let at_channel = false
+            let at_here = false
+            for (let o in selected_options) {
+                if (selected_options[o].value == 'channel') {
+                    at_channel = true;
+                }
+                if (selected_options[o].value == 'here') {
+                    at_here = true;
+                }
+            }
+            schema.push(
+                {
+                    "slack": {
+                        "channels": values.slack.slack_channels.selected_options.map(channel => channel.value),
+                        "at_channel": at_channel,
+                        "at_here": at_here
+                    }
+                }
+            )
+        }
+        else if (client == 'mobile') {
+            schema.push(
+                {
+                    "f_c_m": {
+                        "header": values.mobile.mobile_header.value,
+                        "id": "general"
+                    }
+                }
+            )
+        }
+        else if (client == 'mapgt') {
+            schema.push(
+                {
+                    "mapgt": {
+                        "area": values.mapgt.mapgt_location.selected_option.value || null,
+                        "title": values.none16.mapgt_title.value,
+                        "time": values.none17.mapgt_time.selected_option.value
+                    }
+                }
+            )
+        }
+    }
+    return schema
 }
 
 async function getConversations(query, web) {
     const result = await web.conversations.list({
         token: process.env.SLACK_BOT_TOKEN,
         exclude_archived: true,
-        limit: 258
+        limit: 300
     });
 
     convos = [];
-
     result.channels.forEach((conversation) => {
         convos.push(conversation["name"])
     });
@@ -61,8 +149,51 @@ async function getConversations(query, web) {
             value: channel
         })
     }
-    
+
     return options;
+}
+
+const queryMessage = () => `
+    query send_message($message: String!, $plugins: PluginMaster!) {
+        send_message(message: $message, plugins: $plugins) {
+            plugin
+            errors {
+                error
+                message
+            }
+        }
+    }
+`;
+
+async function makeBuzzerRequest(message, clientSchemaJson) {
+    ret = failureJson()
+    const res = await fetch(process.env.BUZZER_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': `application/json`,
+            'Accept': `application/json`,
+            'Authorization': 'Basic ' + process.env.BUZZER_ADMIN_KEY
+        },
+        body: JSON.stringify({
+            query: queryMessage(),
+            variables: {
+                "message": message,
+                "plugins": clientSchemaJson
+            }
+        })
+    }).then(res => {
+        if (res.status == 200) {
+            console.log("Buzzer Success")
+            ret = successJson();
+        } else {
+            console.log("Resp error: " + res.statusText);
+        }
+        return res.json()
+    }).then(res => {
+        console.log("response received")
+        console.log(JSON.stringify(res))
+    })
+    return ret;
 }
 
 module.exports = {

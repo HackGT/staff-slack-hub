@@ -1,15 +1,3 @@
-const queryMessage = () => `
-    query send_message($message:String!, $plugins:PluginMaster!) {
-        send_message(message: $message, plugins: $plugins) {
-            plugin
-            errors {
-            error
-            message
-            }
-        }
-    }
-`;
-
 const locationsQuery = () => `
     query {
         allLocations {
@@ -70,7 +58,6 @@ const updateEventMutation = () => `
 `;
 
 module.exports = {
-    queryMessage,
     eventsQuery,
     locationsQuery,
     typesQuery,

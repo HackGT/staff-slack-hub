@@ -54,7 +54,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*Send Notification* - Use buzer to send announcements"
+                "text": "*Send Notification* - Use buzzer to send announcements"
             },
             "accessory": {
                 "type": "button",

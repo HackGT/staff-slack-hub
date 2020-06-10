@@ -40,37 +40,6 @@ async function makeCMSRequest(query, variables = {}) {
     return [null, data];
 }
 
-async function makeRequest(message, clientSchemaJson, adminkey) {
-    ret = failureJson()
-    const res = await fetch(process.env.BUZZER_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': `application/json`,
-            'Accept': `application/json`,
-            'Authorization': 'Basic ' + adminkey
-        },
-        body: JSON.stringify({
-            query: queryMessage,
-            variables: {
-                "message": message,
-                "plugins": clientSchemaJson
-            }
-        })
-    }).then(res => {
-        if (res.status == 200) {
-            console.log("Buzzer Success")
-            ret = successJson();
-        } else {
-            console.log("My name is rahul and im dumb")
-        }
-        return res.json()
-    }).then(res => {
-        console.log("response received")
-        console.log(JSON.stringify(res))
-    })
-    return ret;
-}
-
 async function getEventData(id) {
     const [err, data] = await makeCMSRequest(eventDataQuery(), { id: id })
 
