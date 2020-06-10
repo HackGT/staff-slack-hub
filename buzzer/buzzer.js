@@ -20,8 +20,6 @@ function addInteractions(slackInteractions, web) {
     })
 
     slackInteractions.viewSubmission('buzzer_submit', async (payload) => {
-        console.log('Buzzer submitted');
-
         let clients = [];
         for (const block of payload.view.blocks) {
             if (!block.block_id.includes('none')) {
@@ -186,7 +184,7 @@ async function makeBuzzerRequest(message, clientSchemaJson) {
             console.log("Buzzer Success")
             ret = successJson();
         } else {
-            console.log("Resp error: " + res.statusText);
+            console.log("Response error: " + res.statusText);
         }
         return res.json()
     }).then(res => {

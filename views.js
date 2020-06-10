@@ -71,7 +71,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*Promote User* - Add name prefix and overlay"
+                "text": "*Promote User* - Add name prefix and hackathon overlay"
             },
             "accessory": {
                 "type": "button",

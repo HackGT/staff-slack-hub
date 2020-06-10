@@ -46,7 +46,7 @@ const setNameAndImage = async (web, token, webhookUrl) => {
             const resp = await web.users.profile.set({
                 token: token,
                 name: "display_name",
-                value: config.namePrefix + profile.display_name
+                value: config.namePrefix + profile.real_name
             })
         }
 
@@ -81,7 +81,7 @@ const setNameAndImage = async (web, token, webhookUrl) => {
 
         if (setPhoto.ok) {
             webhook.send({
-                text: "Successfully updated display name and profile overlay."
+                text: "Successfully updated display name and profile overlay!"
             })
         } else {
             throw new Error();

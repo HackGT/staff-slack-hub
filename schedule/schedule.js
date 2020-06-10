@@ -6,7 +6,6 @@ function addInteractions(slackInteractions, web) {
     /* ------------------------------ SLACK ACTIONS ----------------------------- */
 
     slackInteractions.action({ actionId: 'schedule_open_primary' }, async (payload) => {
-        console.log(payload);
         const res = await web.views.open(firstJson(payload.trigger_id));
     });
 

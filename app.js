@@ -54,14 +54,15 @@ app.post('/slack/hub', async (req, res) => {
 
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
-        profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        // Uncomment below to auto start profile setting when user first authenticates
+        //profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful!');
     },
     failure: async (error, installOptions, req, res) => {
         console.error(error);
         if (error.name == "NotAuthorizedError") {
-            res.send('Sorry, you are not authorized for this app.')
+            res.send('Sorry, only organizers can use this app.')
         } else {
             res.send('Sorry, a server error occurred.');
         }
