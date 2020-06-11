@@ -1,7 +1,7 @@
 const { firstJson, secondJson, successJson, failureJson } = require('./views');
 const { getEvents, getLocations, getEventData, getTypes, updateEvent } = require('../cms');
 
-function addInteractions(slackInteractions, web) {
+function addInteractions(slackInteractions, web, installer) {
 
     /* ------------------------------ SLACK ACTIONS ----------------------------- */
 

@@ -1,13 +1,17 @@
 {
   "name": "staff-slack-hub",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A centralized hub for HackGT staff slack apps",
+  "main": "app.js",
   "scripts": {
     "start": "node ./src/app.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ayush Goyal",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/HackGT/staff-slack-hub.git"
+    },
+  "license": "MIT",
   "dependencies": {
     "@slack/events-api": "^2.3.3",
     "@slack/interactive-messages": "^1.6.0",

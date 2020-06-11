@@ -2,20 +2,58 @@ require('dotenv').config();
 
 const express = require('express');
 
-const schedule = require('./plugins/schedule/schedule');
-const profile = require('./plugins/profile/profile');
-const buzzer = require('./plugins/buzzer/buzzer');
+const schedule = require('./plugins/schedule/slack');
+const profile = require('./plugins/profile/slack');
+const buzzer = require('./plugins/buzzer/slack');
 
-const { errorJson, homeJson, homeJsonBlocks, permissionJson, unauthorizedHomeJson } = require('./views');
-const { web, slackEvents, slackInteractions, installer } = require('./slack');
+const { homeJson, homeJsonBlocks, permissionJson, unauthorizedHomeJson } = require('./views');
+
+const { WebClient } = require('@slack/web-api');
+const { createEventAdapter } = require('@slack/events-api');
+const { createMessageAdapter } = require('@slack/interactive-messages');
+const { InstallProvider } = require('@slack/oauth');
+
+const config = require('./config.json');
+const { NotAuthorizedError, Token } = require('./db');
+
+const web = new WebClient(process.env.SLACK_BOT_TOKEN);
+const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
+const slackInteractions = createMessageAdapter(process.env.SLACK_SIGNING_SECRET);
+const installer = new InstallProvider({
+    clientId: process.env.SLACK_CLIENT_ID,
+    clientSecret: process.env.SLACK_CLIENT_SECRET,
+    stateSecret: 'my-state-secret',
+    installationStore: {
+        storeInstallation: async (installation) => {
+            const result = await web.users.conversations({
+                token: installation.user.token,
+                types: "private_channel"
+            })
+            if (result.channels.map((channel) => channel.name).includes(config.organizerChannel)) {
+                let store = new Token(installation);
+
+                store.save();
+            } else {
+                throw new NotAuthorizedError('Not staff');
+            }
+        },
+        fetchInstallation: async (installQuery) => {
+            let query = Token.findOne({
+                "team.id": installQuery.teamId,
+                "user.id": installQuery.userId
+            });
+            let result = await query.exec();
+            if (!result || result == []) {
+                return undefined;
+            }
+            return result;
+        }
+    }
+});
 
 const app = express();
 
 app.use('/slack/events', slackEvents.requestListener())
-
-slackEvents.on('message', (event) => {
-    console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
-})
 
 slackEvents.on('app_home_opened', async (event) => {
     try {
@@ -31,9 +69,9 @@ slackEvents.on('error', console.error);
 
 app.use('/slack/actions', slackInteractions.requestListener());
 
-schedule.addInteractions(slackInteractions, web);
+schedule.addInteractions(slackInteractions, web, installer);
 profile.addInteractions(slackInteractions, web, installer);
-buzzer.addInteractions(slackInteractions, web);
+buzzer.addInteractions(slackInteractions, web, installer);
 
 app.use(express.urlencoded({ extended: true }));
 

@@ -3,7 +3,7 @@ const { getLocations } = require('../cms');
 
 const fetch = require('node-fetch');
 
-function addInteractions(slackInteractions, web) {
+function addInteractions(slackInteractions, web, installer) {
 
     /* ------------------------------ SLACK ACTIONS ----------------------------- */
 
@@ -36,7 +36,13 @@ function addInteractions(slackInteractions, web) {
             clientSchemaJson[index] = client[index];
         })
         const res = await makeBuzzerRequest(values.none1.message.value, clientSchemaJson);
-        return ret;
+
+        if (res.status == 200) {
+            return successJson();
+        }
+
+        console.error("Buzzer Error: " + res.statusText)
+        return failureJson();
     })
 
     /* ------------------------------ SLACK OPTIONS ----------------------------- */
@@ -151,20 +157,20 @@ async function getConversations(query, web) {
     return options;
 }
 
-const queryMessage = () => `
-    query send_message($message: String!, $plugins: PluginMaster!) {
-        send_message(message: $message, plugins: $plugins) {
-            plugin
-            errors {
-                error
-                message
-            }
-        }
-    }
-`;
 
 async function makeBuzzerRequest(message, clientSchemaJson) {
-    ret = failureJson()
+    const queryMessage = `
+        query send_message($message: String!, $plugins: PluginMaster!) {
+            send_message(message: $message, plugins: $plugins) {
+                plugin
+                errors {
+                    error
+                    message
+                }
+            }
+        }
+    `;
+
     const res = await fetch(process.env.BUZZER_URL, {
         method: 'POST',
         headers: {
@@ -173,25 +179,15 @@ async function makeBuzzerRequest(message, clientSchemaJson) {
             'Authorization': 'Basic ' + process.env.BUZZER_ADMIN_KEY
         },
         body: JSON.stringify({
-            query: queryMessage(),
+            query: queryMessage,
             variables: {
                 "message": message,
                 "plugins": clientSchemaJson
             }
         })
-    }).then(res => {
-        if (res.status == 200) {
-            console.log("Buzzer Success")
-            ret = successJson();
-        } else {
-            console.log("Response error: " + res.statusText);
-        }
-        return res.json()
-    }).then(res => {
-        console.log("response received")
-        console.log(JSON.stringify(res))
     })
-    return ret;
+
+    return res;
 }
 
 module.exports = {

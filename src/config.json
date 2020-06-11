@@ -1,0 +1,5 @@
+{
+    "organizerChannel": "schedule-bot-test",
+    "namePrefix": "[staff] ",
+    "overlayImagePath": "./src/plugins/profile/organizer.svg"
+}

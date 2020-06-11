@@ -1,11 +1,3 @@
-const errorJson = () => {
-    return {
-        "response_type": "ephemeral",
-        "text": "Sorry, there was a server error."
-    }
-}
-
-
 const homeJson = (user) => {
     return {
         "user_id": user,
@@ -71,7 +63,7 @@ const homeJsonBlocks = () => {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "*Promote User* - Add name prefix and hackathon overlay"
+                "text": "*Promote User* - Add a name prefix and hackathon organizer overlay"
             },
             "accessory": {
                 "type": "button",
@@ -102,7 +94,7 @@ const unauthorizedHomeJson = (user) => {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "*Sorry, you do not have access to this page. Please contact a HackGT tech member for more information*"
+                        "text": "*Please activate the app with the slash command first to see the available actions.*"
                     }
                 }
             ]
@@ -128,7 +120,6 @@ const permissionJson = (url) => {
 }
 
 module.exports = {
-    errorJson,
     homeJson,
     homeJsonBlocks,
     unauthorizedHomeJson,
