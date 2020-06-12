@@ -27,9 +27,11 @@ function addInteractions(slackInteractions, web, installer) {
             }
         }
 
+        const authorized = await installer.authorize({ teamId: payload.user.team_id, userId: payload.user.id });
+
         values = payload.view.state.values;
         // values = [...new Set(values)];
-        let clientSchema = await generateSchema(clients, values);
+        let clientSchema = await generateSchema(clients, values, authorized.userToken);
         let clientSchemaJson = {}
         clientSchema.map(client => {
             let index = Object.keys(client)[0];
@@ -56,7 +58,7 @@ function addInteractions(slackInteractions, web, installer) {
     })
 }
 
-async function generateSchema(clients, values) {
+async function generateSchema(clients, values, userToken) {
     schema = [];
     for (const client of clients) {
         if (client == 'live_site') {
@@ -82,6 +84,7 @@ async function generateSchema(clients, values) {
             selected_options = values.none10.slack_at.selected_options;
             let at_channel = false
             let at_here = false
+            let beardell_bot = false
             for (let o in selected_options) {
                 if (selected_options[o].value == 'channel') {
                     at_channel = true;
@@ -89,13 +92,17 @@ async function generateSchema(clients, values) {
                 if (selected_options[o].value == 'here') {
                     at_here = true;
                 }
+                if (selected_options[o].value == 'beardell') {
+                    beardell_bot = true;
+                }
             }
             schema.push(
                 {
                     "slack": {
                         "channels": values.slack.slack_channels.selected_options.map(channel => channel.value),
                         "at_channel": at_channel,
-                        "at_here": at_here
+                        "at_here": at_here,
+                        "user_token": beardell_bot ? '' : userToken
                     }
                 }
             )

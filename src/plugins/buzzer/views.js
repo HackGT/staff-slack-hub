@@ -253,6 +253,14 @@ const secondJsonBlocks = (selected_platforms) => {
                                 "emoji": true
                             },
                             "value": "here"
+                        },
+                        {
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Send message as Beardell Bot",
+                                "emoji": true
+                            },
+                            "value": "beardell"
                         }
                     ]
                 },
