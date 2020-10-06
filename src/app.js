@@ -93,9 +93,9 @@ app.post('/slack/hub', async (req, res) => {
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
         // Uncomment below to auto start profile setting when user first authenticates
-        //profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        // profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
-        res.send('Successful!');
+        res.send('Successful! Please return to Slack to see the options.');
     },
     failure: async (error, installOptions, req, res) => {
         console.error(error);
