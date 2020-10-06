@@ -94,6 +94,7 @@ app.post('/slack/hub', async (req, res) => {
 app.get('/installation', async (req, res) => {
     let url = await installer.generateInstallUrl({
         scopes: ['channels:history', 'channels:join', 'chat:write', 'commands', 'groups:history', 'groups:read', 'im:history', 'usergroups:read'],
+        userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read"]
     });
     res.redirect(url);
 });
@@ -107,6 +108,7 @@ const callbackOptions = {
     },
     failure: async (error, installOptions, req, res) => {
         console.error(error);
+        console.log(installOptions);
         if (error.name == "NotAuthorizedError") {
             res.send('Sorry, only organizers can use this app.')
         } else {
