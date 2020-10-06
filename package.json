@@ -7,22 +7,22 @@
     "start": "node ./src/app.js"
   },
   "author": "Ayush Goyal",
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/HackGT/staff-slack-hub.git"
-    },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HackGT/staff-slack-hub.git"
+  },
   "license": "MIT",
   "dependencies": {
-    "@slack/events-api": "^2.3.3",
-    "@slack/interactive-messages": "^1.6.0",
-    "@slack/oauth": "^1.1.0",
-    "@slack/web-api": "^5.10.0",
+    "@slack/events-api": "^2.3.4",
+    "@slack/interactive-messages": "^1.7.0",
+    "@slack/oauth": "^1.2.0",
+    "@slack/web-api": "^5.12.0",
     "@slack/webhook": "^5.0.3",
     "dateformat": "^3.0.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mongoose": "^5.9.18",
-    "node-fetch": "^2.6.0",
-    "sharp": "^0.25.3"
+    "mongoose": "^5.10.7",
+    "node-fetch": "^2.6.1",
+    "sharp": "^0.25.4"
   }
 }

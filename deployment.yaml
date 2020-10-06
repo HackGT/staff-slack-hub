@@ -1,0 +1,18 @@
+git:
+  branch: master
+
+wants:
+  mongo: true
+
+secrets:
+  - SLACK_BOT_TOKEN
+  - SLACK_SIGNING_SECRET
+  - SLACK_CLIENT_ID
+  - SLACK_CLIENT_SECRET
+  - CMS_TOKEN
+  - BUZZER_ADMIN_KEY
+
+env:
+  CMS_URL: https://cms.hack.gt/admin/api
+  BUZZER_URL: https://buzzer.hack.gt/graphql
+  PORT: 3000
