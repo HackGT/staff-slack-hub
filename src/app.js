@@ -90,6 +90,14 @@ app.post('/slack/hub', async (req, res) => {
     }
 });
 
+// Generate URL to install Slack App to new workspace
+app.get('/installation', async (req, res) => {
+    let url = await installer.generateInstallUrl({
+        scopes: ['channels:history', 'channels:join', 'chat:write', 'commands', 'groups:history', 'groups:read', 'im:history', 'usergroups:read'],
+    });
+    res.redirect(url);
+});
+
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
         // Uncomment below to auto start profile setting when user first authenticates
