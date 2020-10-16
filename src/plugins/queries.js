@@ -19,7 +19,7 @@ const typesQuery = () => `
 
 const eventsQuery = () => `
     query {
-        allEvents {
+        allEvents(where: { hackathon: { isActive: true } }) {
             id
             name
             startDate
