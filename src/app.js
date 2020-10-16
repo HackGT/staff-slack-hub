@@ -83,7 +83,7 @@ app.post('/slack/hub', async (req, res) => {
     } catch {
         let url = await installer.generateInstallUrl({
             scopes: ['channels:read', 'groups:read'],
-            userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read"],
+            userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read", "channels:read"],
             metadata: req.body.response_url
         });
         res.json(permissionJson(url));
@@ -94,7 +94,7 @@ app.post('/slack/hub', async (req, res) => {
 app.get('/installation', async (req, res) => {
     let url = await installer.generateInstallUrl({
         scopes: ['channels:history', 'channels:join', 'chat:write', 'commands', 'groups:history', 'groups:read', 'im:history', 'usergroups:read'],
-        userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read"]
+        userScopes: ['users.profile:read', 'users.profile:write', 'chat:write', "groups:read", "channels:read"]
     });
     res.redirect(url);
 });
@@ -102,7 +102,7 @@ app.get('/installation', async (req, res) => {
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
         // Uncomment below to auto start profile setting when user first authenticates
-        profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        // profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful! Please return to Slack to see the options.');
     },
