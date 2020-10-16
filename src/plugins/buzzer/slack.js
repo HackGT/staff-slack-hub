@@ -54,7 +54,9 @@ function addInteractions(slackInteractions, web, installer) {
     })
 
     slackInteractions.options({ actionId: 'slack_channels' }, async (payload) => {
-        return await getConversations(payload.value, web).catch(console.error);
+        const authorized = await installer.authorize({ teamId: payload.user.team_id, userId: payload.user.id });
+
+        return await getConversations(payload.value, web, authorized.userToken).catch(console.error);
     })
 }
 
@@ -132,9 +134,9 @@ async function generateSchema(clients, values, userToken) {
     return schema
 }
 
-async function getConversations(query, web) {
+async function getConversations(query, web, userToken) {
     const result = await web.conversations.list({
-        token: process.env.SLACK_BOT_TOKEN,
+        token: userToken,
         exclude_archived: true,
         limit: 300
     });
