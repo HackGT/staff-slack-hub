@@ -1,9 +1,16 @@
 const mongoose = require('mongoose');
 
 class NotAuthorizedError extends Error {
-    constructor(message) {
-        super(message);
+    constructor() {
+        super();
         this.name = "NotAuthorizedError"
+    }
+}
+
+class WrongTeamError extends Error {
+    constructor() {
+        super();
+        this.name = "WrongTeamError"
     }
 }
 
@@ -27,5 +34,6 @@ let Token = mongoose.model('Token', new mongoose.Schema({
 
 module.exports = {
     NotAuthorizedError,
+    WrongTeamError,
     Token
 }

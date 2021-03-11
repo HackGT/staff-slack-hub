@@ -51,8 +51,11 @@ const setNameAndImage = async (web, token, webhookUrl) => {
         }
 
         if (!profile.image_original) {
-            // User hasn't actually set a profile picture; this will use the default Slack profile picture
-            profile.image_original = profile.image_512;
+            // User hasn't actually set a profile picture yet
+            webhook.send({
+                text: "Please set a profile picture first and then try again by typing /hub"
+            })
+            return;
         }
 
         let profilePath = path.join(os.tmpdir(), profile.avatar_hash + path.extname(profile.image_original));
