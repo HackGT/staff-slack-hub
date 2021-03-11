@@ -102,7 +102,7 @@ app.get('/installation', async (req, res) => {
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
         // Uncomment below to auto start profile setting when user first authenticates
-        // profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful! Please return to Slack to see the options.');
     },
