@@ -111,13 +111,13 @@ const callbackOptions = {
         res.send('Successful! Please return to Slack to see the options.');
     },
     failure: async (error, installOptions, req, res) => {
-        console.error(error);
-        console.log(installOptions);
         if (error.name == "NotAuthorizedError") {
             res.send('Sorry, only organizers can use this app.')
         } else if (error.name == "WrongTeamError") {
             res.send('Sorry, you selected the wrong workspace. Please try again and select ' + config.team.name  + ' from the top right dropdown.')
         } else {
+            console.error(error);
+            console.log(installOptions);
             res.send('Sorry, a server error occurred.');
         }
     },
@@ -128,16 +128,8 @@ app.get('/slack/oauth-redirect', async (req, res) => {
     await installer.handleCallback(req, res, callbackOptions);
 })
 
-app.get('/*', (req, res) => {
-    res.send("Default get");
-
-    console.log('GET Request: ' + req.url);
-})
-
-app.post('/*', (req, res) => {
-    res.send("Default post");
-
-    console.log('POST Request: ' + req.url);
+app.all('*', (req, res) => {
+    res.redirect("https://hack.gt");
 })
 
 app.listen(process.env.PORT, () => {
