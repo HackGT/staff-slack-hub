@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 
 class NotAuthorizedError extends Error {
-    constructor(message) {
-        super(message);
+    constructor() {
+        super();
         this.name = "NotAuthorizedError"
     }
 }
 
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true });
+class WrongTeamError extends Error {
+    constructor() {
+        super();
+        this.name = "WrongTeamError"
+    }
+}
+
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 
 let db = mongoose.connection;
 db.on('error', console.error.bind(console), 'MongoDB connection error:');
@@ -27,5 +34,6 @@ let Token = mongoose.model('Token', new mongoose.Schema({
 
 module.exports = {
     NotAuthorizedError,
+    WrongTeamError,
     Token
 }

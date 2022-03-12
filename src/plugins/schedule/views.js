@@ -1,5 +1,3 @@
-const dateformat = require('dateformat');
-
 const { timeOptions } = require('../common');
 
 const headerJson = (selected_event = undefined) => {

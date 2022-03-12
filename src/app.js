@@ -14,7 +14,7 @@ const { createMessageAdapter } = require('@slack/interactive-messages');
 const { InstallProvider } = require('@slack/oauth');
 
 const config = require('./config.json');
-const { NotAuthorizedError, Token } = require('./db');
+const { NotAuthorizedError, WrongTeamError, Token } = require('./db');
 
 const web = new WebClient(process.env.SLACK_BOT_TOKEN);
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
@@ -25,6 +25,10 @@ const installer = new InstallProvider({
     stateSecret: 'my-state-secret',
     installationStore: {
         storeInstallation: async (installation) => {
+            if (installation.team.id !== config.team.id) {
+                throw new WrongTeamError()
+            }
+
             const result = await web.users.conversations({
                 token: installation.user.token,
                 types: "private_channel"
@@ -34,7 +38,7 @@ const installer = new InstallProvider({
 
                 store.save();
             } else {
-                throw new NotAuthorizedError('Not staff');
+                throw new NotAuthorizedError();
             }
         },
         fetchInstallation: async (installQuery) => {
@@ -102,16 +106,18 @@ app.get('/installation', async (req, res) => {
 const callbackOptions = {
     success: async (installation, installOptions, req, res) => {
         // Uncomment below to auto start profile setting when user first authenticates
-        // profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
+        profile.setNameAndImage(web, installation.user.token, installOptions.metadata);
 
         res.send('Successful! Please return to Slack to see the options.');
     },
     failure: async (error, installOptions, req, res) => {
-        console.error(error);
-        console.log(installOptions);
         if (error.name == "NotAuthorizedError") {
             res.send('Sorry, only organizers can use this app.')
+        } else if (error.name == "WrongTeamError") {
+            res.send('Sorry, you selected the wrong workspace. Please try again and select ' + config.team.name  + ' from the top right dropdown.')
         } else {
+            console.error(error);
+            console.log(installOptions);
             res.send('Sorry, a server error occurred.');
         }
     },
@@ -122,16 +128,8 @@ app.get('/slack/oauth-redirect', async (req, res) => {
     await installer.handleCallback(req, res, callbackOptions);
 })
 
-app.get('/*', (req, res) => {
-    res.send("Default get");
-
-    console.log('GET Request: ' + req.url);
-})
-
-app.post('/*', (req, res) => {
-    res.send("Default post");
-
-    console.log('POST Request: ' + req.url);
+app.all('*', (req, res) => {
+    res.redirect("https://hack.gt");
 })
 
 app.listen(process.env.PORT, () => {

@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const dateformat = require('dateformat');
+const { DateTime } = require('luxon');
 
 const { eventsQuery, locationsQuery, typesQuery, eventDataQuery, tagsQuery, updateEventMutation } = require('./queries');
 
@@ -143,7 +143,8 @@ async function getEvents(query) {
     });
 
     for (i = 0; i < eventData.length; i++) {
-        eventData[i].date = new Date(eventData[i].startDate);
+        const jsDate = new Date(eventData[i].startDate);
+        eventData[i].date = DateTime.fromJSDate(jsDate, { zone: 'America/New_York' });
     }
 
     eventData = eventData.sort((a, b) => a.date - b.date);
@@ -154,9 +155,9 @@ async function getEvents(query) {
 
     let dates = [];
 
-    for (event of eventData) {
-        let timeString = dateformat(event.date, 'UTC:hh:MM TT');
-        let dateString = dateformat(event.date, 'UTC:ddd, mmm dd, yyyy');
+    for (const event of eventData) {
+        let timeString = event.date.toFormat("hh:mm a");
+        let dateString = event.date.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
 
         if (!(dates.includes(dateString))) {
             options.option_groups.push({
