@@ -1,9 +1,9 @@
 {
     "organizerChannel": "staff",
     "namePrefix": "[staff] ",
-    "overlayImagePath": "./src/plugins/profile/healthtech-2021-overlay.svg",
+    "overlayImagePath": "./src/plugins/profile/horizons-2022-overlay.svg",
     "team": {
-        "id": "T01PU25BY7Q",
-        "name": "HealthTech 2021"
+        "id": "T035UL64QUA",
+        "name": "Horizons 2022"
     }
 }
