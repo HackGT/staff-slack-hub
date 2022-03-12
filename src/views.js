@@ -42,23 +42,23 @@ const homeJsonBlocks = () => {
                 "action_id": "schedule_open_primary"
             }
         },
-        {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "*Send Notification* - Use buzzer to send announcements"
-            },
-            "accessory": {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": "Select",
-                    "emoji": true
-                },
-                "style": "primary",
-                "action_id": "buzzer_open_primary"
-            }
-        },
+        // {
+        //     "type": "section",
+        //     "text": {
+        //         "type": "mrkdwn",
+        //         "text": "*Send Notification* - Use buzzer to send announcements"
+        //     },
+        //     "accessory": {
+        //         "type": "button",
+        //         "text": {
+        //             "type": "plain_text",
+        //             "text": "Select",
+        //             "emoji": true
+        //         },
+        //         "style": "primary",
+        //         "action_id": "buzzer_open_primary"
+        //     }
+        // },
         {
             "type": "section",
             "text": {
