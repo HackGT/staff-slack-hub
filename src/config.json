@@ -1,9 +1,9 @@
 {
     "organizerChannel": "staff",
     "namePrefix": "[organizer] ",
-    "overlayImagePath": "./src/plugins/profile/horizons-2023-overlay.svg",
+    "overlayImagePath": "./src/plugins/profile/hackgtx-overlay.svg",
     "team": {
-        "id": "T04SESPQ6G4",
-        "name": "Horizons 2023"
+        "id": "T05ULKBRZHB",
+        "name": "HackGT X"
     }
 }
