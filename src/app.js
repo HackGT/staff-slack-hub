@@ -129,7 +129,7 @@ app.get('/slack/oauth-redirect', async (req, res) => {
 })
 
 app.all('*', (req, res) => {
-    res.redirect("https://hack.gt/");
+    res.redirect("https://horizons.hexlabs.org/");
 })
 
 app.listen(process.env.PORT, () => {
