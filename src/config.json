@@ -1,9 +1,9 @@
 {
     "organizerChannel": "staff",
     "namePrefix": "[organizer] ",
-    "overlayImagePath": "./src/plugins/profile/hackgt11-overlay.svg",
+    "overlayImagePath": "./src/plugins/profile/hackgteeny-2025-overlay.svg",
     "team": {
-        "id": "T07N6JR7S72",
-        "name": "HackGT 11"
+        "id": "T08ELNBP3CK",
+        "name": "HackGTeeny 2025"
     }
 }
