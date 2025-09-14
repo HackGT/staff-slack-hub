@@ -17,7 +17,7 @@ function addInteractions(slackInteractions, web, installer) {
         try {
             const authorized = await installer.authorize({ teamId: payload.user.team_id, userId: payload.user.id });
 
-            setNameAndImage(web, authorized.userToken, payload.response_url);
+            setNameAndImage(web, authorized.userToken, payload.response_url, payload.channel.id);
         } catch (error) {
             console.error(error);
         }
@@ -30,7 +30,7 @@ const pipeToFile = async (stream, file) => {
     });
 }
 
-const setNameAndImage = async (web, token, webhookUrl) => {
+const setNameAndImage = async (web, token, webhookUrl, channelId) => {
     const webhook = new IncomingWebhook(webhookUrl);
 
     try {
@@ -38,15 +38,25 @@ const setNameAndImage = async (web, token, webhookUrl) => {
             text: "Working on it..."
         })
 
+        // Find matching group by channelId
+        const group = config.groups.find(g => g.channelId === channelId);
+
+        if (!group) {
+            await webhook.send({
+                text: "Sorry, no overlay is configured for this channel."
+            });
+            return;
+        }
+
         const profile = (await web.users.profile.get({
             token: token
         })).profile
 
-        if (!profile.display_name.startsWith(config.namePrefix)) {
+        if (!profile.display_name.startsWith(group.namePrefix)) {
             const resp = await web.users.profile.set({
                 token: token,
                 name: "display_name",
-                value: config.namePrefix + profile.real_name
+                value: group.namePrefix + profile.real_name
             })
         }
 
@@ -65,7 +75,7 @@ const setNameAndImage = async (web, token, webhookUrl) => {
         let profilePic = sharp(await fs.promises.readFile(profilePath));
         let profilePicData = await profilePic.metadata();
 
-        let overlay = await sharp(config.overlayImagePath)
+        let overlay = await sharp(group.overlayImagePath)
             .resize(profilePicData.width, profilePicData.height)
             .toBuffer();
 

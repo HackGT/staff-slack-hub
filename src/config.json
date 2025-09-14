@@ -1,9 +1,26 @@
 {
-    "organizerChannel": "staff",
-    "namePrefix": "[organizer] ",
-    "overlayImagePath": "./src/plugins/profile/hackgteeny-2025-overlay.svg",
+    "groups": [
+        {
+            "channel": "staff",
+            "channelId": "C09FA5BNVDJ",
+            "namePrefix": "[organizer] ",
+            "overlayImagePath": "./src/plugins/profile/hackgt12-organizer-overlay.svg"
+        },
+        {
+            "channel": "sponsors",
+            "channelId": "C09F328PN13",
+            "namePrefix": "[sponsor] ",
+            "overlayImagePath": "./src/plugins/profile/hackgt12-sponsor-overlay.svg"
+        },
+        {
+            "channel": "mentors",
+            "channelId": "C09FA5D8PM2",
+            "namePrefix": "[mentor] ",
+            "overlayImagePath": "./src/plugins/profile/hackgt12-mentor-overlay.svg"
+        }
+    ],
     "team": {
-        "id": "T08ELNBP3CK",
-        "name": "HackGTeeny 2025"
+        "id": "T09E7HKK276",
+        "name": "HackGT 12"
     }
 }
