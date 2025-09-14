@@ -33,7 +33,7 @@ const installer = new InstallProvider({
                 token: installation.user.token,
                 types: "private_channel"
             })
-            if (result.channels.map((channel) => channel.name).includes(config.organizerChannel)) {
+            if (result.channels.map((channel) => channel.name).includes("staff")) {
                 let store = new Token(installation);
 
                 store.save();
